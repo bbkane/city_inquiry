@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>{{ city }}</h1>
+    <div class="weather">
+        {% if weather is not none %}
+            <p>temperature: {{ weather.temperature }}</p>
+            <p>wind speed: {{ weather.wind_speed }}</p>
+            <p>humidity: {{ weather.humidity }}</p>
+        {% else %}
+            <p>No weather available</p>
+        {% endif %}
+    </div>
+    <div class="schools_generator">
+        {% if schools is not none %}
+            {% for school in schools %}
+            <p>{{ school.name }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div id="map"></div>
+    <script>
+      function initMap() {
+        var mapDiv = document.getElementById('map');
+        var map = new google.maps.Map(mapDiv, {
+            center: {lat: {{ latlng.lat|safe }}, lng: {{ latlng.lng|safe }} },
+          zoom: 8
+        });
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
+        async defer></script>
+{% endblock %}
