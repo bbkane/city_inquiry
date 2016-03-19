@@ -27,4 +27,6 @@ def results(state, city):
                            city=city,
                            weather=apis.get_weather(city),
                            schools=apis.get_schools_generator(state, city),
+                           crimes=apis.get_crimes_generator(state, city),
+                           # crimes=None,
                            latlng=apis.get_latlng(state, city))

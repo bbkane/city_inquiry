@@ -16,6 +16,8 @@
 import os
 from collections import namedtuple
 import datetime
+import json
+import pprint
 
 import pyowm
 import geocoder
@@ -52,6 +54,8 @@ SchoolOverview = namedtuple('SchoolOverview', ['total_schools', 'elementary_scho
 School = namedtuple('School', ['name', 'type', 'grade_range', 'enrollment', 'district', 'address', 'phone',
                                'fax', 'website', 'overview_link', 'ratings_link', 'reviews_link'])
 LatLng = namedtuple('LatLng', ['lat', 'lng'])
+
+Crime = namedtuple('Crime', ['datetime', 'description'])
 
 
 def find_or_none(tag, sub_tag):
@@ -134,15 +138,14 @@ def get_schools_generator(state, city):
 
 
 # TODO: this only works for some cities (San-Francisco, CA)
-def get_crimes(state, city):
+def get_crimes_generator(state, city):
     lat, lng = get_latlng(state, city)
     # lat = '37.757815'
     # lng = '-122.5076392'
     today = datetime.datetime.today()
     today_str = today.strftime('%m %d %Y').replace(' ', '%2F')
-    print(today_str)
-    three_months = datetime.timedelta(3 * 30)
-    three_months_ago_str = (today - three_months).strftime('%m %d %Y').replace(' ', '%2F')
+    time_delta = datetime.timedelta(7)
+    three_months_ago_str = (today - time_delta).strftime('%m %d %Y').replace(' ', '%2F')
     payload = dict(lat=lat, long=lng, startdate=three_months_ago_str, enddate=today_str)
     payload = '?enddate={end_date}&lat={lat}&long={lng}&startdate={start_date}'.format(end_date=today_str,
                                                                                        lat=lat,
@@ -152,9 +155,13 @@ def get_crimes(state, city):
     url_string = 'https://jgentes-Crime-Data-v1.p.mashape.com/crime' + payload
     headers = {'X-Mashape-Key': KEY_XMASHAPE, 'Accept': 'application/json'}
     result = requests.get(url_string, headers=headers)
-    print(result.request.headers)
-    print(result.request.url)
-    print(result.text)
+    # print(result.request.headers)
+    # print(result.request.url)
+    crimes = json.loads(result.text)
+    if not crimes:
+        return None
+    for crime in crimes:
+        yield Crime(crime['datetime'], crime['description'])
 
 
 def get_zillow():
@@ -165,10 +172,13 @@ def get_zillow():
     print(result.text)
 
 
-# Test API's here
-def test_get_weather():
-    print(get_weather('Little Rock'))
-
+def get_zillow_rate_summary(state):
+    url = 'http://www.zillow.com/webservice/GetRateSummary.htm?zws-id={KEY_ZILLOW}&state={state}'.format(KEY_ZILLOW=KEY_ZILLOW,
+                                                                                                         state=state)
+    print(url)
+    result = requests.get(url)
+    root = ET.fromstring(result.text)
+    i = root.find('message').find('response').find('today')
 
 if __name__ == '__main__':
     # test_get_weather()
@@ -176,6 +186,8 @@ if __name__ == '__main__':
     # for school in get_schools_generator('AR', 'North Little Rock'):
     #     print(school)
     # print(get_latlng('AR', 'North Little Rock'))
-    # print(get_crimes('Ar', 'North Little Rock'))
-    # print(get_crimes('CA', 'San-Francisco'))
-    get_zillow()
+    print(list((get_crimes_generator('Ar', 'North Little Rock'))))
+    # for crime in get_crimes_generator('CA', 'San-Francisco'):
+        # print(crime)
+    # get_zillow()
+    print(get_zillow_rate_summary('AR'))
