@@ -17,7 +17,7 @@ import os
 from collections import namedtuple
 import datetime
 import json
-import pprint
+# import pprint
 
 import pyowm
 import geocoder
@@ -56,6 +56,9 @@ School = namedtuple('School', ['name', 'type', 'grade_range', 'enrollment', 'dis
 LatLng = namedtuple('LatLng', ['lat', 'lng'])
 
 Crime = namedtuple('Crime', ['datetime', 'description'])
+
+RateSummaryDay = namedtuple('RateSummaryDay', ['thirty_year_fixed', 'fifteenn_year_fixed', 'five_one_ARM'])
+RateSummaryWeek = namedtuple('RateSummaryWeek', ['thirty_year_fixed', 'fifteenn_year_fixed', 'five_one_ARM'])
 
 
 def find_or_none(tag, sub_tag):
@@ -171,23 +174,68 @@ def get_zillow():
     print(result.request.url)
     print(result.text)
 
+RateSummaryDay = namedtuple('RateSummaryDay', ['thirty_year_fixed', 'fifteen_year_fixed', 'five_one_ARM'])
+RateSummaryWeek = namedtuple('RateSummaryWeek', ['thirty_year_fixed', 'fifteen_year_fixed', 'five_one_ARM'])
 
-def get_zillow_rate_summary(state):
+
+def get_zillow_rate_summary_day(state):
+    state = state.upper()
     url = 'http://www.zillow.com/webservice/GetRateSummary.htm?zws-id={KEY_ZILLOW}&state={state}'.format(KEY_ZILLOW=KEY_ZILLOW,
                                                                                                          state=state)
     print(url)
     result = requests.get(url)
     root = ET.fromstring(result.text)
-    i = root.find('message').find('response').find('today')
+    # i = root.find('message').find('response').find('today')
+    i = root.find('response').find('today')
+    for child in i:
+        if child.get('loanType') == 'thirtyYearFixed':
+            thirty_year_fixed = child.text
+        elif child.get('loanType') == 'fifteenYearFixed':
+            fifteen_year_fixed = child.text
+        elif child.get('loanType') == 'fiveOneARM':
+            five_one_ARM = child.text
+    return RateSummaryDay(thirty_year_fixed, fifteen_year_fixed, five_one_ARM)
 
+
+def get_zillow_rate_summary_week(state):
+    state = state.upper()
+    url = 'http://www.zillow.com/webservice/GetRateSummary.htm?zws-id={KEY_ZILLOW}&state={state}'.format(KEY_ZILLOW=KEY_ZILLOW,
+                                                                                                         state=state)
+    print(url)
+    result = requests.get(url)
+    root = ET.fromstring(result.text)
+    # i = root.find('message').find('response').find('today')
+    i = root.find('response').find('lastWeek')
+    for child in i:
+        if child.get('loanType') == 'thirtyYearFixed':
+            thirty_year_fixed = child.text
+        elif child.get('loanType') == 'fifteenYearFixed':
+            fifteen_year_fixed = child.text
+        elif child.get('loanType') == 'fiveOneARM':
+            five_one_ARM = child.text
+    return RateSummaryWeek(thirty_year_fixed, fifteen_year_fixed, five_one_ARM)
+
+RegionChart = namedtuple('RegionChart', ['chart_url', 'city_link', 'local_link', 'for_sale_link',
+                                         'for_sale_by_owner_link'])
+def get_region_chart(state, city):
+    state = state.upper()
+    city = city.replace(' ', '+')
+    url = "http://www.zillow.com/webservice/GetRegionChart.htm?zws-id={KEY_ZILLOW}&city={city}&state={state}&unit-type=percent&width=300&height=150".format(KEY_ZILLOW=KEY_ZILLOW, city=city, state=state)
+    return url
+
+
+import webbrowser
 if __name__ == '__main__':
     # test_get_weather()
     # print(get_school_overview('AR', 'North Little Rock'))
     # for school in get_schools_generator('AR', 'North Little Rock'):
     #     print(school)
     # print(get_latlng('AR', 'North Little Rock'))
-    print(list((get_crimes_generator('Ar', 'North Little Rock'))))
+    # print(list((get_crimes_generator('Ar', 'North Little Rock'))))
     # for crime in get_crimes_generator('CA', 'San-Francisco'):
         # print(crime)
     # get_zillow()
-    print(get_zillow_rate_summary('AR'))
+    # print(get_zillow_rate_summary_day('AR'))
+    # print(get_zillow_rate_summary_week('AR'))
+    print(get_region_chart('AR', 'Little Rock'))
+    webbrowser.open(get_region_chart('AR', 'Little Rock'))
