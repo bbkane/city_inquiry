@@ -23,6 +23,13 @@ import pyowm
 import geocoder
 import requests
 import xml.etree.ElementTree as ET
+# pretty printing
+from xml.dom import minidom
+
+
+def pretty_print_xml(xml_string):
+    reparsed = minidom.parseString(xml_string)
+    print(reparsed.toprettyxml(indent='\t'))
 
 
 # Moved from config because I'm only going to use these here and
@@ -215,16 +222,28 @@ def get_zillow_rate_summary_week(state):
             five_one_ARM = child.text
     return RateSummaryWeek(thirty_year_fixed, fifteen_year_fixed, five_one_ARM)
 
-RegionChart = namedtuple('RegionChart', ['chart_url', 'city_link', 'local_link', 'for_sale_link',
-                                         'for_sale_by_owner_link'])
+# RegionChart = namedtuple('RegionChart', ['chart_url', 'city_link', 'local_link', 'for_sale_link',
+#                                          'for_sale_by_owner_link'])
+RegionChart = namedtuple('RegionChart', 'chart_url')
+
+
 def get_region_chart(state, city):
     state = state.upper()
     city = city.replace(' ', '+')
     url = "http://www.zillow.com/webservice/GetRegionChart.htm?zws-id={KEY_ZILLOW}&city={city}&state={state}&unit-type=percent&width=300&height=150".format(KEY_ZILLOW=KEY_ZILLOW, city=city, state=state)
-    return url
+    print(url)
+    result = requests.get(url)
+    root = ET.fromstring(result.text)
+    try:
+        img = root.find('response').find('url').text
+    except AttributeError as e:
+        pretty_print_xml(result.text)
+        print(str(e))
+        return None
+    else:
+        return RegionChart(img)
 
 
-import webbrowser
 if __name__ == '__main__':
     # test_get_weather()
     # print(get_school_overview('AR', 'North Little Rock'))
@@ -236,6 +255,5 @@ if __name__ == '__main__':
         # print(crime)
     # get_zillow()
     # print(get_zillow_rate_summary_day('AR'))
-    # print(get_zillow_rate_summary_week('AR'))
-    print(get_region_chart('AR', 'Little Rock'))
-    webbrowser.open(get_region_chart('AR', 'Little Rock'))
+    print(get_region_chart('WA', 'Seattle'))
+    # print(get_region_chart('LR', 'Little Rock'))
