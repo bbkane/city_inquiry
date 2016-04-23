@@ -50,9 +50,11 @@
             {% endfor %}
         </div>
     {% endif %}
-    <div class="container" id="rate">
-        Rate
-    </div>
+    {% if region_chart is not none %}
+        <div class="container" id="rate">
+            {{ region_chart.chart_url }}
+        </div>
+    {% endif %}
     <div class="container" id="tweets">
         Tweets
     </div>

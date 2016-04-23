@@ -215,13 +215,17 @@ def get_zillow_rate_summary_week(state):
             five_one_ARM = child.text
     return RateSummaryWeek(thirty_year_fixed, fifteen_year_fixed, five_one_ARM)
 
-RegionChart = namedtuple('RegionChart', ['chart_url', 'city_link', 'local_link', 'for_sale_link',
-                                         'for_sale_by_owner_link'])
+# RegionChart = namedtuple('RegionChart', ['chart_url', 'city_link', 'local_link', 'for_sale_link',
+#                                          'for_sale_by_owner_link'])
+
+RegionChart = namedtuple('RegionChart', 'chart_url')
+
+
 def get_region_chart(state, city):
     state = state.upper()
     city = city.replace(' ', '+')
     url = "http://www.zillow.com/webservice/GetRegionChart.htm?zws-id={KEY_ZILLOW}&city={city}&state={state}&unit-type=percent&width=300&height=150".format(KEY_ZILLOW=KEY_ZILLOW, city=city, state=state)
-    return url
+    return RegionChart(url)
 
 
 import webbrowser
