@@ -1,33 +1,34 @@
 {% extends "base.html" %}
 {% block content %}
+<div id="top">
     <h1>{{ city }}</h1>
-    <div class="weather">
-        {% if weather is not none %}
+</div>
+<div id="left">
+    <!-- TODO: no weather available message? -->
+    {% if weather is not none %}
+        <div class="container" id="weather">
             <p>temperature: {{ weather.temperature }}</p>
             <p>wind speed: {{ weather.wind_speed }}</p>
             <p>humidity: {{ weather.humidity }}</p>
-        {% else %}
-            <p>No weather available</p>
-        {% endif %}
-    </div>
-    <div class="schools_generator">
-        {% if schools is not none %}
+        </div>
+    {% endif %}
+
+    {% if schools is not none %}
+        <div class="container" id="schools">
             {% for school in schools %}
-            <p>{{ school.name }}</p>
+                <p>{{ school.name }}</p>
             {% endfor %}
-        {% endif %}
+        </div>
+    {% endif %}
+</div>
+<main id="middle">
+    <div id="middle_top">
+        <h2>Middle Top</h2>
     </div>
-    <div class="crimes_generator">
-        {% if crimes is not none %}
-            {% for crime in crimes %}
-                <p>{{ crime.description }}
-            {% endfor %}
-        {% endif %}
-    </div>
-    <div id="map"></div>
+    <!-- Google Map scipt and load -->
     <script>
       function initMap() {
-        var mapDiv = document.getElementById('map');
+        var mapDiv = document.getElementById('middle_top');
         var map = new google.maps.Map(mapDiv, {
             center: {lat: {{ latlng.lat|safe }}, lng: {{ latlng.lng|safe }} },
           zoom: 8
@@ -36,5 +37,24 @@
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
         async defer></script>
-
+    <!-- Don't know what to do here yet -->
+    <div id="middle_bottom">
+        <h2>Middle Bottom</h2>
+    </div>
+</main>
+<div id="right">
+    {% if crimes is not none %}
+        <div class="container" id="crime">
+            {% for crime in crimes %}
+                <p>{{ crime.description }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="container" id="rate">
+        Rate
+    </div>
+    <div class="container" id="tweets">
+        Tweets
+    </div>
+</div>
 {% endblock %}
