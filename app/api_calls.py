@@ -50,6 +50,11 @@ try:
     # Crime. THis api is not very complete...
     KEY_XMASHAPE = os.environ['KEY_XMASHAPE']
     KEY_ZILLOW = os.environ['KEY_ZILLOW']
+    # Twitter thingies
+    KEY_TWIT_CON_KEY = os.environ['KEY_TWIT_CON_KEY']
+    KEY_TWIT_CON_SECRET = os.environ['KEY_TWIT_CON_SECRET']
+    KEY_TWIT_ACC_TOK = os.environ['KEY_TWIT_ACC_TOK']
+    KEY_TWIT_ACC_KEY = os.environ['KEY_TWIT_ACC_KEY']
 except KeyError as e:
     raise SystemExit("Load API keys into shell variables: `source api_keys.sh`. Missing key: " + str(e))
 
