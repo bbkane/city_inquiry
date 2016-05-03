@@ -28,6 +28,6 @@ def results(state, city):
                            weather=apis.get_weather(city),
                            schools=apis.get_schools_generator(state, city),
                            crimes=apis.get_crimes_generator(state, city),
-                           # crimes=None,
                            region_chart=apis.get_region_chart(state, city),
+                           tweets=apis.get_tweets_generator(city),
                            latlng=apis.get_latlng(state, city))

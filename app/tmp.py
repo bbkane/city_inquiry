@@ -1,3 +1,4 @@
+import collections
 import tweepy
 import os
 import json
@@ -11,21 +12,24 @@ try:
 except KeyError as e:
     raise SystemExit("Load API keys into shell variables: `source api_keys.sh`. Missing key: " + str(e))
 
-auth = tweepy.AppAuthHandler(KEY_TWIT_CON_KEY, KEY_TWIT_CON_SECRET)
-
-api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
-
-if not api:
-    raise SystemExit("Can't authenticate")
+Tweet = collections.namedtuple('Tweet', 'text')
 
 
-search_query = "littlerock"
-count = 20
-since_id = None
+def get_tweet_generator(city, count=15):
+    city = city.replace(' ', '-')
+    city = city.lower()
+    print('city: ', city)
+    auth = tweepy.AppAuthHandler(KEY_TWIT_CON_KEY, KEY_TWIT_CON_SECRET)
+    api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
+    if not api:
+        return None
+    new_tweets = api.search(q=city, count=count)
+    for tweet in new_tweets:
+        yield Tweet(tweet.text)
+    # for count, tweet in enumerate(new_tweets):
+    #     print(count)
+    #     print(tweet.text)
+        print('-'*15)
 
-new_tweets = api.search(q=search_query, count=count)
-
-for count, tweet in enumerate(new_tweets):
-    print(count)
-    print(tweet.text)
-    print('-'*15)
+for tweet in get_tweet_generator('Little Rock'):
+    print(tweet)

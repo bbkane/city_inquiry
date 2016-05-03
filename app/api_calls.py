@@ -19,6 +19,7 @@ import datetime
 import json
 # import pprint
 
+import tweepy
 import pyowm
 import geocoder
 import requests
@@ -236,29 +237,45 @@ def get_region_chart(state, city):
     state = state.upper()
     city = city.replace(' ', '+')
     url = "http://www.zillow.com/webservice/GetRegionChart.htm?zws-id={KEY_ZILLOW}&city={city}&state={state}&unit-type=percent&width=300&height=150".format(KEY_ZILLOW=KEY_ZILLOW, city=city, state=state)
-    print(url)
+    # print(url)
     result = requests.get(url)
     root = ET.fromstring(result.text)
     try:
         img = root.find('response').find('url').text
     except AttributeError as e:
-        pretty_print_xml(result.text)
-        print(str(e))
+        # pretty_print_xml(result.text)
+        # print(str(e))
         return None
     else:
         return RegionChart(img)
 
 
+Tweet = namedtuple('Tweet', 'text')
+
+
+def get_tweets_generator(city, count=15):
+    city = city.replace(' ', '-')
+    city = city.lower()
+    print('city: ', city)
+    auth = tweepy.AppAuthHandler(KEY_TWIT_CON_KEY, KEY_TWIT_CON_SECRET)
+    api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
+    if not api:
+        return None
+    new_tweets = api.search(q=city, count=count)
+    for tweet in new_tweets:
+        yield Tweet(tweet.text)
+
+
 if __name__ == '__main__':
     # test_get_weather()
     # print(get_school_overview('AR', 'North Little Rock'))
-    # for school in get_schools_generator('AR', 'North Little Rock'):
-    #     print(school)
+    for school in get_schools_generator('CR', 'North Little Rock'):
+        print(school)
     # print(get_latlng('AR', 'North Little Rock'))
     # print(list((get_crimes_generator('Ar', 'North Little Rock'))))
     # for crime in get_crimes_generator('CA', 'San-Francisco'):
         # print(crime)
     # get_zillow()
     # print(get_zillow_rate_summary_day('AR'))
-    print(get_region_chart('WA', 'Seattle'))
+    # print(get_region_chart('WA', 'Seattle'))
     # print(get_region_chart('LR', 'Little Rock'))

@@ -19,6 +19,10 @@
                 <p>{{ school.name }}</p>
             {% endfor %}
         </div>
+    {% else %}
+        <div class="container" id="schools">
+            <p>No School information available</p>
+        </div>
     {% endif %}
 </div>
 <main id="middle">
@@ -55,8 +59,12 @@
             <img src={{ region_chart.chart_url }}>
         </div>
     {% endif %}
-    <div class="container" id="tweets">
-        Tweets
-    </div>
+    {% if tweets is not none %}
+        <div class="container" id="tweets">
+            {% for tweet in tweets %}
+                <p>{{ tweet.text }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
