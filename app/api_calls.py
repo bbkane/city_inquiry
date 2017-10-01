@@ -254,6 +254,8 @@ Tweet = namedtuple('Tweet', 'text')
 
 
 def get_tweets_generator(city, count=15):
+    # # NOTE: returning None here till I can find/create Twitter creds
+    # return None
     city = city.replace(' ', '-')
     city = city.lower()
     print('city: ', city)
@@ -269,10 +271,10 @@ def get_tweets_generator(city, count=15):
 if __name__ == '__main__':
     # test_get_weather()
     # print(get_school_overview('AR', 'North Little Rock'))
-    for school in get_schools_generator('CR', 'North Little Rock'):
-        print(school)
+    # for school in get_schools_generator('CR', 'North Little Rock'):
+    #     print(school)
     # print(get_latlng('AR', 'North Little Rock'))
-    # print(list((get_crimes_generator('Ar', 'North Little Rock'))))
+    print(list((get_crimes_generator('Ar', 'North Little Rock'))))
     # for crime in get_crimes_generator('CA', 'San-Francisco'):
         # print(crime)
     # get_zillow()
