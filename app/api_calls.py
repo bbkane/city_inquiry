@@ -85,7 +85,12 @@ def find_or_none(tag, sub_tag):
 
 def get_latlng(state, city):
     g = geocoder.google(city + ', ' + state)
-    lat, lng = g.latlng
+    try:
+        lat, lng = g.latlng
+    except TypeError:
+        # Uh, let's fake it for NLR
+        lat = '34.7695'
+        lng = '92.2671'
     return LatLng(lat, lng)
 
 
